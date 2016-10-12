@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.DetailActivity"
+    tools:ignore="MergeRootFrame">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:elevation="2dp"
+            card_view:cardElevation="2dp"
+            card_view:cardCornerRadius="2dp">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:stretchColumns="0,1">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+
+                    <ImageView
+                        android:id="@+id/list_item_icon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@drawable/sunny"
+                        android:adjustViewBounds="true"
+                        android:cropToPadding="false" />
+
+                    <view
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        class="android.support.v4.widget.Space"
+                        android:id="@+id/view3" />
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center">
+
+                        <TextView
+                            android:id="@+id/list_item_low_textview"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".75"
+                            android:layout_marginRight="8dp"
+                            android:text="97°C"
+                            android:layout_gravity="start|bottom"
+                            android:textAlignment="viewStart"
+                            android:textSize="18sp" />
+
+                        <TextView
+                            android:id="@+id/list_item_high_textview"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="99°C"
+                            android:textStyle="normal|bold"
+                            android:textSize="24sp"
+                            android:layout_gravity="end|bottom"
+                            android:textAlignment="viewEnd" />
+                    </LinearLayout>
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+
+                    <TextView
+                        android:id="@+id/list_item_forecast_textview"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:text="Sonne"
+                        android:textAlignment="center" />
+
+                    <view
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        class="android.support.v4.widget.Space"
+                        android:id="@+id/view4" />
+
+                    <TextView
+                        android:id="@+id/list_item_date_textview"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="end"
+                        android:text="Di., den 11.10.2016"
+                        android:textAlignment="viewEnd" />
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="@dimen/activity_double_vertical_margin"
+                    android:paddingBottom="@dimen/activity_double_vertical_margin" >
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.github.pwittchen.weathericonview.WeatherIconView
+                                android:id="@+id/my_weather_icon_humidity"
+                                android:layout_width="25dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                custom:weatherIconResource="@string/wi_humidity"
+                                custom:weatherIconColor="@color/colorAccent"
+                                custom:weatherIconSize="30" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginLeft="6dp">
+
+                            <TextView
+                                android:id="@+id/list_item_humidity_textview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:text="110%"
+                                android:textAlignment="viewStart" />
+
+                            <TextView
+                                android:id="@+id/list_item_humidity_info_textview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:singleLine="true"
+                                android:textSize="10sp"
+                                android:textStyle="normal|italic"
+                                android:textAlignment="viewStart"
+                                android:text="Luftfeuchtigkeit" />
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5"
+                            android:layout_marginLeft="8dp">
+
+                            <com.github.pwittchen.weathericonview.WeatherIconView
+                                android:id="@+id/my_weather_icon_wind"
+                                android:layout_width="25dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                custom:weatherIconResource="@string/wi_small_craft_advisory"
+                                custom:weatherIconColor="@color/colorAccent"
+                                custom:weatherIconSize="30" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/list_item_wind_textview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:text="14 km/h"
+                                android:textAlignment="viewStart" />
+
+                            <TextView
+                                android:id="@+id/list_item_wind_dir_textview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:text="Nord-West"
+                                android:textAlignment="viewStart"
+                                android:textSize="10sp"
+                                android:textStyle="normal|italic" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".5">
+
+                            <com.github.pwittchen.weathericonview.WeatherIconView
+                                android:id="@+id/my_weather_icon_pressure"
+                                android:layout_width="25dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="right"
+                                custom:weatherIconResource="@string/wi_barometer"
+                                custom:weatherIconColor="@color/colorAccent"
+                                custom:weatherIconSize="30" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginLeft="6dp">
+
+                            <TextView
+                                android:id="@+id/list_item_pressure_textview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:textAlignment="viewStart"
+                                android:text="999 hPa" />
+
+                            <TextView
+                                android:id="@+id/list_item_pressure_info_textview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start"
+                                android:singleLine="true"
+                                android:textSize="10sp"
+                                android:textStyle="normal|italic"
+                                android:textAlignment="viewStart"
+                                android:text="Luftdruck" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </TableRow>
+            </TableLayout>
+        </android.support.v7.widget.CardView>
+
+    </FrameLayout>
+
+    <include layout="@layout/toolbar"/>
+</FrameLayout>

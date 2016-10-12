@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Wetter</string>
+    <string name="hello_world">Hallo!</string>
+    <string name="action_refresh">Aktualisieren</string>
+    <string name="action_map">Karte</string>
+    <string name="action_settings">Einstellungen</string>
+
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Einstellungen</string>
+
+    <string name="pref_location_label">Standort</string>
+    <string name="pref_location_key" translatable="false">location</string>
+    <string name="pref_location_default">Fulda</string>
+    <string name="pref_units_label">Temperatur Einheit</string>
+    <string name="pref_units_label_metric">Metrisch</string>
+    <string name="pref_units_label_imperial">Imperial</string>
+    <string name="pref_units_key" translatable="false">units</string>
+    <string name="pref_units_metric" translatable="false">metric</string>
+    <string name="pref_units_imperial" translatable="false">imperial</string>
+</resources>
