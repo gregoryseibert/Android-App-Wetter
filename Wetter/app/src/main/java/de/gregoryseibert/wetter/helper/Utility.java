@@ -29,7 +29,7 @@ public class Utility {
     public final static String OWM_DAYS_PARAM = "cnt";
     public final static String OWM_LANG_PARAM = "lang";
     public final static String OWM_APPID_PARAM = "APPID";
-    public final static String OWM_APIKEY = "ec9b11616de5bdf30338ff74597d9a3a";
+    public final static String OWM_APIKEY = "";
     public final static String OWM_LIST = "list";
     public final static String OWM_WEATHER = "weather";
     public final static String OWM_TEMPERATURE = "temp";
