@@ -1,36 +1,38 @@
 package de.gregoryseibert.wetter.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
+import de.gregoryseibert.wetter.R;
+import de.gregoryseibert.wetter.adapter.ForecastAdapter;
 import de.gregoryseibert.wetter.helper.Utility;
 import de.gregoryseibert.wetter.task.FetchForecastsTask;
-import de.gregoryseibert.wetter.model.Forecast;
-import de.gregoryseibert.wetter.adapter.ForecastAdapter;
-import de.gregoryseibert.wetter.R;
 
-public class MainActivity extends AppCompatActivity {
-    private SharedPreferences prefs;
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int FORECAST_LOADER = 0;
+    private Activity activity;
+    private AnimationSet animSet;
     private FloatingActionButton floatingActionButton;
-    private TextView locationText;
-    private ListView forecastListView;
-    private RelativeLayout progressBarHolder;
     private ForecastAdapter forecastAdapter;
-    private FetchForecastsTask fetchForecastsTask;
     private String location;
 
     @Override
@@ -45,36 +47,63 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.toolbarTitle).setVisibility(View.VISIBLE);
         }
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
-        locationText = (TextView) findViewById(R.id.locationText);
-        locationText.setText(location);
-        locationText.setVisibility(View.VISIBLE);
+        activity = this;
+        location = Utility.getPreferredLocation(this);
 
-        progressBarHolder = (RelativeLayout) findViewById(R.id.progressBarHolder);
-
-        forecastAdapter = new ForecastAdapter(this, R.layout.list_item_forecast, R.layout.list_item_forecast_today, new ArrayList<Forecast>());
-        forecastListView = (ListView) findViewById(R.id.listview_forecast);
-        forecastListView.setAdapter(forecastAdapter);
-        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Forecast forecast = forecastAdapter.getItem(position);
-
-                Intent intent = new Intent(getApplicationContext(), DetailActivity.class).putExtra(Utility.EXTRA_KEY, forecast);
-                startActivity(intent);
-            }
-        });
+        RotateAnimation animRotate = new RotateAnimation(0.0f, -180.0f, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+        animRotate.setDuration(Utility.FLOATING_ACTION_BUTTON_ANIMATION_DUR);
+        animRotate.setFillAfter(true);
+        animSet = new AnimationSet(true);
+        animSet.setInterpolator(new AccelerateInterpolator());
+        animSet.setFillAfter(true);
+        animSet.setFillEnabled(true);
+        animSet.addAnimation(animRotate);
 
         floatingActionButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                floatingActionButton.startAnimation(animSet);
                 updateWeather();
             }
         });
 
+        forecastAdapter = new ForecastAdapter(this, null, 0);
+
+        ListView listView = (ListView) findViewById(R.id.listview_forecast);
+        listView.setAdapter(forecastAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
+                    String locationSetting = Utility.getPreferredLocation(activity);
+                    Intent intent = new Intent(activity, DetailActivity.class).setData(Utility.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(Utility.COL_FORECAST_WEATHER_DATE)));
+                    startActivity(intent);
+                }
+            }
+        });
+
+        getSupportLoaderManager().initLoader(FORECAST_LOADER, null, this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         updateWeather();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String newLocation = Utility.getPreferredLocation( this );
+
+        if (newLocation != null && !newLocation.equals(location)) {
+            onLocationChanged();
+            location = newLocation;
+        }
     }
 
     @Override
@@ -96,17 +125,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateWeather() {
-        progressBarHolder.setVisibility(View.VISIBLE);
+        FetchForecastsTask weatherTask = new FetchForecastsTask(this);
+        String location = Utility.getPreferredLocation(this);
+        weatherTask.execute(location);
+    }
 
-        forecastAdapter.clear();
+    private void onLocationChanged( ) {
+        updateWeather();
+        getSupportLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+    }
 
-        String newLocation = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
-        if(!location.equals(newLocation)) {
-            location = newLocation;
-            locationText.setText(location);
-        }
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String locationSetting = Utility.getPreferredLocation(this);
 
-        fetchForecastsTask = new FetchForecastsTask(this, forecastAdapter, progressBarHolder);
-        fetchForecastsTask.execute(location);
+        String sortOrder = Utility.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = Utility.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting, System.currentTimeMillis());
+
+        return new CursorLoader(this, weatherForLocationUri, Utility.FORECAST_COLUMNS, null, null, sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        forecastAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        forecastAdapter.swapCursor(null);
     }
 }

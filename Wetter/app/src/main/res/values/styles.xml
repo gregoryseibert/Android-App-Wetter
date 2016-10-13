@@ -1,28 +1,20 @@
 <resources>
-
-    <style name="AppThemeLight" parent="AppTheme.Base"/>
-    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="cardStyle">@style/CardView.Light</item>
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:textColorPrimary">@color/cardview_light_background</item>
+        <item name="android:actionMenuTextColor">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppThemeDark" parent="AppTheme.Base.Dark"/>
-    <style name="AppTheme.Base.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="cardStyle">@style/CardView.Dark</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="Toolbar" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">#fff</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
 
-    <style name="ToolbarStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:background">?attr/colorPrimary</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
-    </style>
-
-    <style name="ToolbarOverlayStyle" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="android:colorBackground">@color/cardview_dark_background</item>
+    <style name="Toolbar_Popup" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">#fff</item>
+        <item name="android:background">@color/cardview_dark_background</item>
     </style>
 </resources>

@@ -10,7 +10,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppThemeDark">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait">
@@ -37,5 +37,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.gregoryseibert.wetter.activity.MainActivity" />
         </activity>
+
+        <service
+            android:name=".data.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+
+        <provider
+            android:name=".data.ForecastProvider"
+            android:authorities="de.gregoryseibert.wetter"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 </manifest>
