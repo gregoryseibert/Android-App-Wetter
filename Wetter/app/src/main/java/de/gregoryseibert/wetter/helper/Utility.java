@@ -10,9 +10,7 @@ import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.text.format.Time;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import de.gregoryseibert.wetter.R;
 
@@ -21,8 +19,8 @@ import de.gregoryseibert.wetter.R;
  */
 
 public class Utility {
-    //key to send a forecast object through an intent
-    public final static String EXTRA_KEY = "Forecast";
+    public static final int SYNC_INTERVAL = 60 * 60; //one hour
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
 
     //date replacement strings
     public final static String TODAY_TEXT = "Heute";
@@ -137,9 +135,24 @@ public class Utility {
     public static final int COL_DETAIL_WEATHER_DEGREES = 8;
     public static final int COL_DETAIL_WEATHER_CONDITION_ID = 9;
 
+    public static final String[] NOTIFICATION_COLUMNS = new String[] {
+            WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherEntry.COLUMN_SHORT_DESC
+    };
+
+    public static final int COL_NOTIFICATION_WEATHER_ID = 0;
+    public static final int COL_NOTIFICATION_MAX_TEMP = 1;
+    public static final int COL_NOTIFICATION_MIN_TEMP = 2;
+    public static final int COL_NOTIFICATION_SHORT_DESC = 3;
+
     public static final int VIEW_TYPE_COUNT = 2;
     public static final int VIEW_TYPE_TODAY = 0;
     public static final int VIEW_TYPE_FUTURE_DAY = 1;
+
+    public static final long NOTIFICATION_INTERVAL = 1000 * 60 * 60; //1 hour
+    public static final int NOTIFICATION_ID = 3003;
 
 
     public static final class LocationEntry implements BaseColumns {
@@ -234,41 +247,57 @@ public class Utility {
         double temp;
         if (!isMetric) {
             temp = 9*temperature/5+32;
-            return String.format("%.0f %s", temp, UNIT_TEMPERATURE_I);
+            return String.format("%.0f%s", temp, UNIT_TEMPERATURE_I);
         } else {
             temp = temperature;
-            return String.format("%.0f %s", temp, UNIT_TEMPERATURE_M);
+            return String.format("%.0f%s", temp, UNIT_TEMPERATURE_M);
         }
     }
 
-    public static String getFormattedWind(Context context, float windSpeed, float degrees) {
-        int windFormat;
+    public static String getFormattedWind(Context context, float windSpeed) {
         if (Utility.isMetric(context)) {
-            //windFormat = R.string.format_wind_kmh;
+            return String.format("%.0f km/h", windSpeed);
         } else {
-            //windFormat = R.string.format_wind_mph;
-            //windSpeed = .621371192237334f * windSpeed;
+            return String.format("%.0f km/h", .621371192237334f * windSpeed);
         }
+    }
 
-        String direction = "Unknown";
-        if (degrees >= 337.5 || degrees < 22.5) {
-            direction = "N";
-        } else if (degrees >= 22.5 && degrees < 67.5) {
-            direction = "NE";
-        } else if (degrees >= 67.5 && degrees < 112.5) {
-            direction = "E";
-        } else if (degrees >= 112.5 && degrees < 157.5) {
-            direction = "SE";
-        } else if (degrees >= 157.5 && degrees < 202.5) {
-            direction = "S";
-        } else if (degrees >= 202.5 && degrees < 247.5) {
-            direction = "SW";
-        } else if (degrees >= 247.5 && degrees < 292.5) {
-            direction = "W";
-        } else if (degrees >= 292.5 && degrees < 337.5) {
-            direction = "NW";
+    public static int getWindDirectionIconCode(float windDeg) {
+        if(getWindDirection(windDeg) != null) {
+            return getWindDirection(windDeg).getIcon();
+        } else {
+            return 0;
         }
-        return String.format("%.0f km/h", windSpeed);
+    }
+
+    public static String getWindDirectionName(float windDeg) {
+        if(getWindDirection(windDeg) != null) {
+            return getWindDirection(windDeg).getDir();
+        } else {
+            return "";
+        }
+    }
+
+    public static Utility.WindDirection getWindDirection(float windDeg) {
+        if(windDeg > 337.5 && windDeg < 22.5) {         //n
+            return Utility.WIND_DIR_1;
+        } else if (windDeg > 22.5 && windDeg < 67.5) {    //ne
+            return Utility.WIND_DIR_2;
+        } else if (windDeg > 67.5 && windDeg < 112.5) {    //e
+            return Utility.WIND_DIR_3;
+        } else if (windDeg > 112.5 && windDeg < 157.5) {   //se
+            return Utility.WIND_DIR_4;
+        } else if (windDeg > 157.5 && windDeg < 202.5) {  //s
+            return Utility.WIND_DIR_5;
+        } else if (windDeg > 202.5 && windDeg < 247.5) {  //sw
+            return Utility.WIND_DIR_6;
+        } else if (windDeg > 247.5 && windDeg < 292.5) {  //w
+            return Utility.WIND_DIR_7;
+        } else if (windDeg > 292.5 && windDeg < 337.5) {  //nw
+            return Utility.WIND_DIR_8;
+        } else {
+            return null;
+        }
     }
 
     public static String getDateString(long dateInMillis) {
@@ -291,6 +320,10 @@ public class Utility {
     public static String getDateStringComplete(long dateInMillis) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(FORMAT_DATE);
         return dateFormat.format(dateInMillis);
+    }
+
+    public static String formatDescription(String description) {
+        return Character.toUpperCase(description.charAt(0)) + description.substring(1);
     }
 
     public static int getIcon(String icon) {

@@ -2,7 +2,6 @@ package de.gregoryseibert.wetter.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,12 +19,11 @@ import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import de.gregoryseibert.wetter.R;
 import de.gregoryseibert.wetter.adapter.ForecastAdapter;
+import de.gregoryseibert.wetter.data.ForecastSyncAdapter;
 import de.gregoryseibert.wetter.helper.Utility;
-import de.gregoryseibert.wetter.task.FetchForecastsTask;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int FORECAST_LOADER = 0;
@@ -87,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         });
 
         getSupportLoaderManager().initLoader(FORECAST_LOADER, null, this);
+
+        ForecastSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
@@ -125,9 +125,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void updateWeather() {
-        FetchForecastsTask weatherTask = new FetchForecastsTask(this);
-        String location = Utility.getPreferredLocation(this);
-        weatherTask.execute(location);
+        //String location = Utility.getPreferredLocation(getActivity());
+        //new FetchWeatherTask(getActivity()).execute(location)
+        ForecastSyncAdapter.syncImmediately(this);
     }
 
     private void onLocationChanged( ) {
