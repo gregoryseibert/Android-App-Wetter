@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.github.pwittchen.weathericonview.WeatherIconView;
 
-import de.gregoryseibert.wetter.helper.Utility;
+import de.gregoryseibert.wetter.util.Utility;
 import de.gregoryseibert.wetter.R;
 
 public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -69,7 +69,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mPressureView = (TextView) findViewById(R.id.list_item_pressure_textview);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.detail, menu);
@@ -114,32 +113,26 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             String weatherId = data.getString(Utility.COL_DETAIL_WEATHER_CONDITION_ID);
             mIconView.setImageResource(Utility.getIcon(weatherId));
 
-            // Read date from cursor and update views for day of week and date
             long date = data.getLong(Utility.COL_DETAIL_WEATHER_DATE);
             String dateText = Utility.getDateStringComplete(date).replace(" -", "\n");
             mDateView.setText(dateText);
 
-            // Read description from cursor and update view
             String description = data.getString(Utility.COL_DETAIL_WEATHER_DESC);
             mDescriptionView.setText(Utility.formatDescription(description));
 
-            // Read high temperature from cursor and update view
             boolean isMetric = Utility.isMetric(this);
 
             double high = data.getDouble(Utility.COL_DETAIL_WEATHER_MAX_TEMP);
             String highString = Utility.formatTemperature(high, isMetric);
             mHighTempView.setText(highString);
 
-            // Read low temperature from cursor and update view
             double low = data.getDouble(Utility.COL_DETAIL_WEATHER_MIN_TEMP);
             String lowString = Utility.formatTemperature(low, isMetric);
             mLowTempView.setText(lowString);
 
-            // Read humidity from cursor and update view
             float humidity = data.getFloat(Utility.COL_DETAIL_WEATHER_HUMIDITY);
-            mHumidityView.setText(Math.round(humidity) + "%");
+            mHumidityView.setText(Math.round(humidity) + Utility.UNIT_HUMIDITY);
 
-            // Read wind speed and direction from cursor and update view
             float windSpeedStr = data.getFloat(Utility.COL_DETAIL_WEATHER_WIND_SPEED);
             mWindView.setText(Utility.getFormattedWind(this, windSpeedStr));
 
@@ -147,9 +140,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             mWindDirView.setText(Utility.getWindDirectionName(windDirStr));
             mWindIconView.setIconResource(getResources().getString(Utility.getWindDirectionIconCode(windDirStr)));
 
-            // Read pressure from cursor and update view
             float pressure = data.getFloat(Utility.COL_DETAIL_WEATHER_PRESSURE);
-            mPressureView.setText(Math.round(pressure) + " hPa");
+            mPressureView.setText(Math.round(pressure) + Utility.UNIT_PRESSURE);
         }
     }
 

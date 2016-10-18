@@ -226,7 +226,6 @@
                                 android:textSize="10sp"
                                 android:textStyle="normal|italic" />
                         </LinearLayout>
-
                     </LinearLayout>
 
                     <LinearLayout
@@ -277,7 +276,6 @@
                                 android:text="Luftdruck" />
                         </LinearLayout>
                     </LinearLayout>
-
                 </TableRow>
             </TableLayout>
         </android.support.v7.widget.CardView>

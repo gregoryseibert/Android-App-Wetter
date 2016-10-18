@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import de.gregoryseibert.wetter.helper.Utility;
+import de.gregoryseibert.wetter.util.Utility;
 
 /**
  * Created by gs71756 on 13.10.2016.
@@ -13,7 +13,7 @@ import de.gregoryseibert.wetter.helper.Utility;
 public class ForecastDBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 2;
 
-    static final String DATABASE_NAME = "weather.db";
+    private static final String DATABASE_NAME = "weather.db";
 
     public ForecastDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

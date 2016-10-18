@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,37 +9,28 @@
     tools:context=".activity.MainActivity"
     tools:ignore="MergeRootFrame">
 
-    <FrameLayout
+    <ListView
+        android:id="@+id/listview_forecast"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="?attr/actionBarSize">
-
-        <ListView
-            android:id="@+id/listview_forecast"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_quadruple_vertical_margin"
-            android:divider="@null"
-            android:clipToPadding="false"
-            android:scrollbars="none"/>
-    </FrameLayout>
+        android:layout_marginTop="?attr/actionBarSize"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_quadruple_vertical_margin"
+        android:divider="@null"
+        android:clipToPadding="false"
+        android:scrollbars="none"/>
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="16dp"
+        app:layout_anchor="@id/listview_forecast"
+        app:layout_anchorGravity="bottom|right|end"
         android:clickable="true"
         app:fabSize="mini"
         app:srcCompat="@drawable/refresh"
-        android:id="@+id/floatingActionButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin" />
+        android:id="@+id/floatingActionButton"/>
 
     <include layout="@layout/toolbar"/>
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

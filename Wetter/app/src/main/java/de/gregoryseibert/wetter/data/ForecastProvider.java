@@ -1,6 +1,5 @@
 package de.gregoryseibert.wetter.data;
 
-import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -11,7 +10,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
-import de.gregoryseibert.wetter.helper.Utility;
+import de.gregoryseibert.wetter.util.Utility;
 
 /**
  * Created by gs71756 on 13.10.2016.
@@ -30,8 +29,7 @@ public class ForecastProvider extends ContentProvider {
 
     static {
         sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
-        sWeatherByLocationSettingQueryBuilder.setTables(Utility.WeatherEntry.TABLE_NAME + " INNER JOIN " + Utility.LocationEntry.TABLE_NAME + " ON " + Utility.WeatherEntry.TABLE_NAME +
-                                                        "." + Utility.WeatherEntry.COLUMN_LOC_KEY + " = " + Utility.LocationEntry.TABLE_NAME + "." + Utility.LocationEntry._ID);
+        sWeatherByLocationSettingQueryBuilder.setTables(Utility.WeatherEntry.TABLE_NAME + " INNER JOIN " + Utility.LocationEntry.TABLE_NAME + " ON " + Utility.WeatherEntry.TABLE_NAME + "." + Utility.WeatherEntry.COLUMN_LOC_KEY + " = " + Utility.LocationEntry.TABLE_NAME + "." + Utility.LocationEntry._ID);
     }
 
     private static final String sLocationSettingSelection = Utility.LocationEntry.TABLE_NAME + "." + Utility.LocationEntry.COLUMN_LOCATION_SETTING + " = ? ";
@@ -46,14 +44,15 @@ public class ForecastProvider extends ContentProvider {
         String selection;
 
         if (startDate == 0) {
-            selection = sLocationSettingSelection;
             selectionArgs = new String[]{locationSetting};
+            selection = sLocationSettingSelection;
         } else {
             selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
             selection = sLocationSettingWithStartDateSelection;
         }
 
-        return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+        return sWeatherByLocationSettingQueryBuilder.query(
+                mOpenHelper.getReadableDatabase(),
                 projection,
                 selection,
                 selectionArgs,
@@ -67,7 +66,8 @@ public class ForecastProvider extends ContentProvider {
         String locationSetting = Utility.WeatherEntry.getLocationSettingFromUri(uri);
         long date = Utility.WeatherEntry.getDateFromUri(uri);
 
-        return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+        return sWeatherByLocationSettingQueryBuilder.query(
+                mOpenHelper.getReadableDatabase(),
                 projection,
                 sLocationSettingAndDaySelection,
                 new String[]{locationSetting, Long.toString(date)},
@@ -126,27 +126,11 @@ public class ForecastProvider extends ContentProvider {
                 break;
             }
             case WEATHER: {
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        Utility.WeatherEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
+                retCursor = mOpenHelper.getReadableDatabase().query(Utility.WeatherEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             }
             case LOCATION: {
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                    Utility.LocationEntry.TABLE_NAME,
-                    projection,
-                    selection,
-                    selectionArgs,
-                    null,
-                    null,
-                    sortOrder
-            );
+                retCursor = mOpenHelper.getReadableDatabase().query(Utility.LocationEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             }
 
@@ -271,7 +255,12 @@ public class ForecastProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
+
+                ContentResolver resolver = getContext().getContentResolver();
+                if(resolver != null) {
+                    resolver.notifyChange(uri, null);
+                }
+
                 return returnCount;
             default:
                 return super.bulkInsert(uri, values);

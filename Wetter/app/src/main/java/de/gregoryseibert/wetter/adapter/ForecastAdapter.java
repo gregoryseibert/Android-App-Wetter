@@ -10,14 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import de.gregoryseibert.wetter.R;
-import de.gregoryseibert.wetter.helper.Utility;
+import de.gregoryseibert.wetter.util.Utility;
 
 /**
  * Created by gs71756 on 10.10.2016.
  */
 
 public class ForecastAdapter extends CursorAdapter {
-    private Context context;
 
     public static class ViewHolder {
         public final ImageView iconView;
@@ -37,7 +36,6 @@ public class ForecastAdapter extends CursorAdapter {
 
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
-        this.context = context;
     }
 
     @Override

@@ -39,9 +39,7 @@ import java.util.Vector;
 
 import de.gregoryseibert.wetter.R;
 import de.gregoryseibert.wetter.activity.MainActivity;
-import de.gregoryseibert.wetter.helper.Utility;
-
-import static android.text.format.DateUtils.DAY_IN_MILLIS;
+import de.gregoryseibert.wetter.util.Utility;
 
 /**
  * Created by gs71756 on 14.10.2016.
@@ -56,8 +54,6 @@ public class ForecastSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "onPerformSync Called.");
-
         String locationQuery = Utility.getPreferredLocation(getContext());
 
         HttpURLConnection urlConnection = null;
@@ -77,25 +73,24 @@ public class ForecastSyncAdapter extends AbstractThreadedSyncAdapter {
 
             URL url = new URL(builtUri.toString());
 
-            Log.v(LOG_TAG, url.toString());
-
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(Utility.OWM_REQUEST_METHOD);
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder builder = new StringBuilder();
 
             if (inputStream != null) {
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
+                    builder.append(line);
+                    builder.append("\n");
                 }
 
-                if (buffer.length() != 0) {
-                    forecastJsonStr = buffer.toString();
+                if (builder.length() != 0) {
+                    forecastJsonStr = builder.toString();
                     getWeatherDataFromJson(forecastJsonStr, locationQuery);
                 }
             }
@@ -144,15 +139,10 @@ public class ForecastSyncAdapter extends AbstractThreadedSyncAdapter {
             dayTime = new Time();
 
             for(int i = 0; i < weatherArray.length(); i++) {
-                long dateTime;
-                double pressure;
+                long dateTime;;
                 int humidity;
-                double windSpeed;
-                double windDirection;
-                double high;
-                double low;
-                String description;
-                String weatherId;
+                double pressure, windSpeed, windDirection, high, low;
+                String description, weatherId;
 
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
                 dateTime = dayTime.setJulianDay(julianStartDay+i);
@@ -186,23 +176,18 @@ public class ForecastSyncAdapter extends AbstractThreadedSyncAdapter {
                 cVVector.add(weatherValues);
             }
 
-            int inserted = 0;
-
             if (cVVector.size() > 0) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
-                inserted = getContext().getContentResolver().bulkInsert(Utility.WeatherEntry.CONTENT_URI, cvArray);
+                getContext().getContentResolver().bulkInsert(Utility.WeatherEntry.CONTENT_URI, cvArray);
             }
-
-            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + inserted + " Inserted");
-
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
     }
 
-    long addLocation(String locationSetting, String cityName, double lat, double lon) {
+    private long addLocation(String locationSetting, String cityName, double lat, double lon) {
         long locationId;
 
         Cursor locationCursor = getContext().getContentResolver().query(
@@ -284,52 +269,58 @@ public class ForecastSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void notifyWeather() {
-        Log.d(LOG_TAG, "notifyWeather called");
         Context context = getContext();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        NotificationManager mNotificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
         String lastNotificationKey = context.getString(R.string.pref_last_notification);
         long lastSync = prefs.getLong(lastNotificationKey, 0);
 
-        if (System.currentTimeMillis() - lastSync >= Utility.NOTIFICATION_INTERVAL) {
-            String locationQuery = Utility.getPreferredLocation(context);
-            Uri weatherUri = Utility.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
-            Cursor cursor = context.getContentResolver().query(weatherUri, Utility.NOTIFICATION_COLUMNS, null, null, null);
+        long elapsedTime = System.currentTimeMillis() - lastSync;
+        boolean updateNotification = elapsedTime >= Utility.NOTIFICATION_INTERVAL;
 
-            if (cursor.moveToFirst()) {
-                String desc = cursor.getString(Utility.COL_NOTIFICATION_SHORT_DESC);
-                String maxTemp = Utility.formatTemperature(cursor.getDouble(Utility.COL_NOTIFICATION_MAX_TEMP), Utility.isMetric(getContext()));
-                String minTemp = Utility.formatTemperature(cursor.getDouble(Utility.COL_NOTIFICATION_MIN_TEMP), Utility.isMetric(getContext()));
-                String title = context.getString(R.string.app_name);
-                int weatherIcon = Utility.getIcon(cursor.getString(Utility.COL_NOTIFICATION_WEATHER_ID));
+        if(prefs.getBoolean(context.getString(R.string.pref_show_notification_key), true)) {
+            if (updateNotification) {
+                String locationQuery = Utility.getPreferredLocation(context);
+                Uri weatherUri = Utility.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
+                Cursor cursor = context.getContentResolver().query(weatherUri, Utility.NOTIFICATION_COLUMNS, null, null, null);
 
-                RemoteViews contentView = new RemoteViews(getContext().getPackageName(), R.layout.notification);
-                contentView.setImageViewResource(R.id.notification_icon, weatherIcon);
-                contentView.setTextViewText(R.id.notification_description, Utility.formatDescription(desc));
-                contentView.setTextViewText(R.id.notification_temperature_min, minTemp);
-                contentView.setTextViewText(R.id.notification_temperature_max, maxTemp);
+                if (cursor.moveToFirst()) {
+                    String desc = cursor.getString(Utility.COL_NOTIFICATION_SHORT_DESC);
+                    String maxTemp = Utility.formatTemperature(cursor.getDouble(Utility.COL_NOTIFICATION_MAX_TEMP), Utility.isMetric(getContext()));
+                    String minTemp = Utility.formatTemperature(cursor.getDouble(Utility.COL_NOTIFICATION_MIN_TEMP), Utility.isMetric(getContext()));
+                    String title = context.getString(R.string.app_name);
+                    int weatherIcon = Utility.getIcon(cursor.getString(Utility.COL_NOTIFICATION_WEATHER_ID));
 
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(getContext())
-                                .setSmallIcon(weatherIcon)
-                                .setContent(contentView)
-                                .setContentTitle(title);
-                Intent resultIntent = new Intent(getContext(), MainActivity.class);
+                    RemoteViews contentView = new RemoteViews(getContext().getPackageName(), R.layout.notification);
+                    contentView.setImageViewResource(R.id.notification_icon, weatherIcon);
+                    contentView.setTextViewText(R.id.notification_description, Utility.formatDescription(desc));
+                    contentView.setTextViewText(R.id.notification_temperature_min, minTemp);
+                    contentView.setTextViewText(R.id.notification_temperature_max, maxTemp);
 
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
-                stackBuilder.addParentStack(MainActivity.class);
-                stackBuilder.addNextIntent(resultIntent);
-                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext()).setSmallIcon(weatherIcon).setContent(contentView).setContentTitle(title);
+                    Intent resultIntent = new Intent(getContext(), MainActivity.class);
 
-                mBuilder.setContentIntent(resultPendingIntent);
-                mBuilder.setOngoing(true);
-                NotificationManager mNotificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.notify(Utility.NOTIFICATION_ID, mBuilder.build());
+                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
+                    stackBuilder.addParentStack(MainActivity.class);
+                    stackBuilder.addNextIntent(resultIntent);
+                    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putLong(lastNotificationKey, System.currentTimeMillis());
-                editor.commit();
+                    mBuilder.setContentIntent(resultPendingIntent);
+                    mBuilder.setOngoing(true);
+                    mNotificationManager.notify(Utility.NOTIFICATION_ID, mBuilder.build());
+                    editor.putLong(lastNotificationKey, System.currentTimeMillis());
+                    editor.apply();
+                }
+            }
+        } else {
+            mNotificationManager.cancelAll();
+
+            if(!updateNotification) {
+                editor.putLong(lastNotificationKey, System.currentTimeMillis()-Utility.NOTIFICATION_INTERVAL);
+                editor.apply();
             }
         }
-
     }
 }

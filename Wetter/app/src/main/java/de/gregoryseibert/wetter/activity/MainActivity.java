@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -19,16 +21,18 @@ import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import de.gregoryseibert.wetter.R;
 import de.gregoryseibert.wetter.adapter.ForecastAdapter;
 import de.gregoryseibert.wetter.data.ForecastSyncAdapter;
-import de.gregoryseibert.wetter.helper.Utility;
+import de.gregoryseibert.wetter.util.Utility;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int FORECAST_LOADER = 0;
     private Activity activity;
     private AnimationSet animSet;
+    private TextView locationText;
     private FloatingActionButton floatingActionButton;
     private ForecastAdapter forecastAdapter;
     private String location;
@@ -47,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         activity = this;
         location = Utility.getPreferredLocation(this);
+
+        locationText = (TextView) findViewById(R.id.locationText);
+        locationText.setVisibility(View.VISIBLE);
+        locationText.setText(location);
 
         RotateAnimation animRotate = new RotateAnimation(0.0f, -180.0f, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
         animRotate.setDuration(Utility.FLOATING_ACTION_BUTTON_ANIMATION_DUR);
@@ -125,14 +133,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void updateWeather() {
-        //String location = Utility.getPreferredLocation(getActivity());
-        //new FetchWeatherTask(getActivity()).execute(location)
         ForecastSyncAdapter.syncImmediately(this);
     }
 
     private void onLocationChanged( ) {
         updateWeather();
         getSupportLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+    }
+
+    public void showSnackbar(String text) {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.container), text, Snackbar.LENGTH_SHORT);
+        View snackbarView = snackbar.getView();
+        snackbarView.setBackgroundColor(ContextCompat.getColor(this, R.color.cardview_light_background));
+        TextView textView = (TextView) snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(ContextCompat.getColor(this, R.color.cardview_dark_background));
+        snackbar.show();
     }
 
     @Override
@@ -148,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         forecastAdapter.swapCursor(cursor);
+        showSnackbar("Die Wetterdaten wurden aktualisiert.");
     }
 
     @Override

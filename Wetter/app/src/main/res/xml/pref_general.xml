@@ -8,11 +8,13 @@
         android:inputType="text"
         android:singleLine="true"/>
     <ListPreference
-        android:defaultValue="0"
+        android:defaultValue="@string/pref_units_metric"
         android:title="@string/pref_units_label"
         android:entries="@array/pref_units_options"
         android:entryValues="@array/pref_units_values"
         android:key="@string/pref_units_key" />
-
-
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:title="@string/pref_show_notification_label"
+        android:key="@string/pref_show_notification_key" />
 </PreferenceScreen>

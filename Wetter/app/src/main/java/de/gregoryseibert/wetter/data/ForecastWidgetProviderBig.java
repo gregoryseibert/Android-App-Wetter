@@ -1,6 +1,5 @@
 package de.gregoryseibert.wetter.data;
 
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -21,17 +20,17 @@ import de.gregoryseibert.wetter.R;
 import de.gregoryseibert.wetter.util.Utility;
 
 /**
- * Created by gs71756 on 14.10.2016.
+ * Created by gs71756 on 17.10.2016.
  */
 
-public class ForecastWidgetProvider extends AppWidgetProvider {
+public class ForecastWidgetProviderBig extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
         for(int appWidgetId : appWidgetIds) {
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_big);
 
             updateWeather(context, views);
             updateTime(views);
@@ -47,6 +46,7 @@ public class ForecastWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
+
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(createClockTickIntent(context));
     }

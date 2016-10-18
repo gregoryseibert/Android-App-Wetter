@@ -1,8 +1,5 @@
 <resources>
     <string name="app_name">Wetter</string>
-    <string name="hello_world">Hallo!</string>
-    <string name="action_refresh">Aktualisieren</string>
-    <string name="action_map">Karte</string>
     <string name="action_settings">Einstellungen</string>
 
     <string name="title_activity_detail">Details</string>
@@ -19,6 +16,8 @@
     <string name="pref_units_imperial" translatable="false">imperial</string>
     <string name="pref_last_notification" translatable="false">last_notification</string>
     <string name="pref_last_widget" translatable="false">last_widget</string>
+    <string name="pref_show_notification_label">Benachrichtigung anzeigen</string>
+    <string name="pref_show_notification_key">notification</string>
 
     <string name="sync_account_type">wetter.gregoryseibert.de</string>
     <string name="content_authority">de.gregoryseibert.wetter</string>
